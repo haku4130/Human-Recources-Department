@@ -1,21 +1,18 @@
 #include <iostream>
 #include "Human Resources Department.h"
 
-int get_position (int id, vector<int> id_array) {
-    int res = 0, i;
-    for (i = 0; i <= id_array.size(); i++) {
-        res = i;
-        if (id > id_array[i]) continue; else break;
-    }
-    return res;
-}
-
 int main() {
-    Company company;
-    Employee employee;
+    Company company ("gym");
+    Company::Department department("slaves");
+    company.add_department(&department);
+    Employee employee("Ivanov I.I.", 1996, "backend", "middle school", 20);
     Supervisor supervisor;
-    company.add_employee(employee);
-    company.add_employee(supervisor);
-    cout << employee.get_id() << " " << supervisor.get_id();
+    Employee employee2;
+    cout << department.add_employee(&employee2) << " " << department.add_employee(&employee) << " " << department.add_employee(&supervisor) << endl;
+    cout << typeid(employee2).name() << " " << typeid(supervisor).name() << endl;
+    Employee *ptr = company.search(1);
+    company.get_table();
+    department.delete_employee(1);
+    company.get_table();
     return 0;
 }
