@@ -13,9 +13,28 @@ Employee::Employee(string name, int birth_year, string position, string educatio
     this->salary = salary;
 }
 
-Supervisor::Supervisor() {
-    ptr_company = nullptr;
+Supervisor::Supervisor(string name, int birth_year, string position, string education, int salary) {
+    this->name = std::move(name);
+    this->birth_year = birth_year;
+    this->position = std::move(position);
+    this->education = std::move(education);
+    this->salary = salary;
+    ptr_department = nullptr;
 }
+
+Supervisor &Supervisor::operator=(Employee *employee) {
+    this->name = std::move(employee->get_name());
+    this->birth_year = employee->get_birth_year();
+    this->position = std::move(employee->get_position());
+    this->education = std::move(employee->get_education());
+    this->salary = employee->get_salary();
+    ptr_department = nullptr;
+    this->id = employee->get_id();
+    Count--;
+    return *this;
+}
+
+void Supervisor::set_department_ptr(Company::Department *ptr) { ptr_department = ptr; }
 
 Company::Department::Department() {
     cout << "Input department name: ";
@@ -35,6 +54,14 @@ bool comparator (Employee *e1, Employee *e2) { return e1->get_id() < e2->get_id(
 int Company::Department::add_employee(Employee *employee) {
     if (search(employee->get_id())) { return -1; }
     employees_array.push_back(employee);
+    sort (employees_array.begin(), employees_array.end(), comparator);
+    return 0;
+}
+
+int Company::Department::add_employee(Supervisor *supervisor) {
+    if (search(supervisor->get_id())) { return -1; }
+    supervisor->set_department_ptr(this);
+    employees_array.push_back(supervisor);
     sort (employees_array.begin(), employees_array.end(), comparator);
     return 0;
 }
@@ -151,9 +178,25 @@ void Employee::set_salary(int new_salary) {
     salary = new_salary;
 }
 
-void Company::Department::emp_to_sup(int id) {
-    Employee *emp_ptr = Company::Department::search(id);
-    if (emp_ptr) {
+string Employee::get_name() {
+    return name;
+}
 
-    }
+int Employee::get_birth_year() const {
+    return birth_year;
+}
+
+string Employee::get_education() {
+    return education;
+}
+
+int Company::emp_to_sup(Company::Department *department, int id) {
+    Employee *emp_ptr = department->search(id);
+    if (!emp_ptr) { return -1; }
+    Supervisor new_supervisor;
+    if (typeid(*emp_ptr).name() == typeid(new_supervisor).name()) { return -2; }
+    new_supervisor = emp_ptr;
+    department->delete_employee(id);
+    department->add_employee(&new_supervisor);
+    return 0;
 }
