@@ -8,7 +8,7 @@
 
 using namespace std;
 
-class Company;
+class Supervisor;
 
 class Employee {
 protected:
@@ -26,27 +26,16 @@ public:
                       string education = "formal",
                       int salary = 20000);
     [[nodiscard]] int get_id() const;
-
+    string get_name ();
+    [[nodiscard]] int get_birth_year () const;
+    string get_education ();
     string get_info();
-
     void display_information();
-
     const char * get_type();
-
     string get_position();
-
     void set_position(string &new_pos);
-
     [[nodiscard]] int get_salary() const;
-
     void set_salary(int new_salary);
-};
-
-class Supervisor : public Employee {
-private:
-    Company *ptr_company;
-public:
-    Supervisor ();
 };
 
 class Company{
@@ -60,10 +49,10 @@ public:
         explicit Department(const string &);
         string get_department_name();
         int add_employee(Employee *);
+        int add_employee(Supervisor *supervisor);
         Employee *search(int);
         void delete_employee(int id);
         int get_position(int id);
-        void emp_to_sup(int id);
         void get_table();
     };
     Company ();
@@ -75,10 +64,23 @@ public:
     void delete_employee(int id);
     string get_company_name();
     void get_table();
+    int emp_to_sup(Department *department, int id);
 private:
     vector<Department *> departments;
-
     string company_name;
+};
+
+class Supervisor : public Employee {
+private:
+    Company::Department *ptr_department;
+public:
+    explicit Supervisor(string name = "Petrov P.P.",
+                        int birth_year = 2000,
+                        string position = "junior developer",
+                        string education = "formal",
+                        int salary = 20000);
+    Supervisor &operator = (Employee *employee);
+    void set_department_ptr (Company::Department *ptr);
 };
 
 #endif
