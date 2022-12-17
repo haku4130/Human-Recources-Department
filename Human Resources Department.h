@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <utility>
-#include <vector>
+#include "my_vector.h"
 #include <typeinfo>
 
 using namespace std;
@@ -14,22 +14,25 @@ class Company;
 class Employee {
 protected:
     int id;
-    string name;
-    int birth_year;
-    string position;
-    string education;
-    int salary;
+    string name{};
+    int birth_year{};
+    string position{};
+    string education{};
+    int salary{};
     static int Count;
 public:
     Employee(const string &name, int birth_year, const string &position, const string &education, int salary);
     Employee();
     [[nodiscard]] int get_id() const;
     string get_name ();
+    void set_name (const string &basicString);
     [[nodiscard]] int get_birth_year () const;
+    void set_birth_year (int b_y);
     string get_education ();
+    void set_education (const string &new_education);
     string get_info();
     void display_information();
-    const char * get_type();
+    virtual string get_type();
     string get_position();
     void set_position(string &new_pos);
     [[nodiscard]] int get_salary() const;
@@ -40,19 +43,20 @@ class Company{
 public:
     class Department {
     private:
-        vector<Employee *> employees_array;
-        string department_name;
+        my_vector<Employee *> employees_array;
+        string department_name{};
     public:
-        Department();
+        Department ();
         explicit Department(const string &);
         string get_department_name();
         int add_employee(Employee *);
         Employee *search(int id);
         void delete_employee(int id);
-        int get_position(int id);
+        size_t get_position(int id);
         void get_table();
         void free_department();
         int emp_to_sup (int id);
+        void set_department_name (const string &new_name);
     };
     Company ();
     explicit Company (const string &);
@@ -68,19 +72,27 @@ public:
     void get_departments ();
     unsigned long get_dep_amount ();
     void free_company();
+    void set_company_name (const string &new_name);
 private:
-    vector<Department *> departments;
-    string company_name;
+    my_vector<Department *> departments;
+    string company_name{};
 };
 
 class Supervisor : public Employee {
 private:
-    Company::Department *ptr_department;
+    Company::Department *ptr_department{};
 public:
     Supervisor ();
+    string get_type () override;
     Supervisor(const string &name, int birth_year, const string &position, const string &education, int salary);
     void set_department_ptr (Company::Department *ptr);
     Supervisor &operator = (Employee *);
 };
+
+int get_int(const char message[]);
+
+istream& operator >> (istream& in, Employee *employee);
+istream &operator >> (istream &in, Company::Department &department);
+istream &operator >> (istream &in, Company &company);
 
 #endif

@@ -1,23 +1,46 @@
 #include <algorithm>
 #include "Human Resources Department.h"
 
+int get_int(const char message[]){
+    int n;
+    cout << message;
+    while (!(cin >> n).good()) {
+        cout << "Incorrect number!\n";
+        cout << message;
+        cin.clear();
+        cin.ignore(100, '\n');
+    }
+    cin.clear();
+    cin.ignore(100, '\n');
+    return n;
+}
+
 int Employee::Count = 0;
 
 Employee::Employee() {
     Employee::Count++;
     id = Employee::Count;
+}
+
+istream& operator >> (istream& in, Employee *employee) {
+    string str;
+    int i;
     cout << "Input name: ";
-    cin >> name;
-    cout << "Input birth year: ";
-    birth_year = 0;
-    cin >> birth_year;
+    getline(in, str);
+    employee->set_name(str);
+    i = get_int("Input birth year: ");
+    employee->set_birth_year(i);
     cout << "Input position: ";
-    cin >> position;
+    str.clear();
+    getline(in, str);
+    employee->set_position(str);
     cout << "Input education: ";
-    cin >> education;
-    cout << "Input salary: ";
-    salary = 0;
-    cin >> salary;
+    str.clear();
+    getline(in, str);
+    employee->set_education(str);
+    i = get_int("Input salary: ");
+    employee->set_salary(i);
+    return in;
 }
 
 Employee::Employee(const string &name, int birth_year, const  string &position, const string &education, int salary) {
@@ -30,26 +53,28 @@ Employee::Employee(const string &name, int birth_year, const  string &position, 
     this->salary = salary;
 }
 
-Supervisor::Supervisor(): Employee() {
-    ptr_department = nullptr;
-}
+Supervisor::Supervisor(): Employee() {}
 
-Supervisor::Supervisor(const string &name, int birth_year, const string &position, const string &education, int salary) : Employee(name, birth_year, position, education, salary){
-    ptr_department = nullptr;
-}
+Supervisor::Supervisor(const string &name, int birth_year, const string &position, const string &education, int salary) : Employee(name, birth_year, position, education, salary){}
 
-Company::Department::Department() {
+istream &operator >> (istream &in, Company::Department &department) {
     cout << "Input department name: ";
-    getline(cin, department_name);
+    string str;
+    getline(in, str);
+    department.set_department_name(str);
+    return in;
+}
+
+istream &operator >> (istream &in, Company &company) {
+    cout << "Input company name: ";
+    string str;
+    getline(in, str);
+    company.set_company_name(str);
+    return in;
 }
 
 Company::Department::Department(const string &name) {
     department_name = name;
-}
-
-Company::Company() {
-    cout << "Input Company name: ";
-    getline(cin, company_name);
 }
 
 Company::Company(const string &name) {
@@ -67,6 +92,10 @@ Supervisor &Supervisor::operator = (Employee *other) {
     salary = other->get_salary();
     Count--;
     return *this;
+}
+
+string Supervisor::get_type() {
+    return "Supervisor";
 }
 
 int Employee::get_id() const { return this->id; }
@@ -125,7 +154,7 @@ void Company::delete_employee (int id) {
 
 string Company::get_company_name() { return company_name; }
 
-int Company::Department::get_position (int id) {
+size_t Company::Department::get_position (int id) {
     for (int i = 0; i < employees_array.size(); i++) {
         if (employees_array[i]->get_id() == id) return i;
     }
@@ -133,7 +162,7 @@ int Company::Department::get_position (int id) {
 }
 
 void Company::Department::delete_employee (int id) {
-    int pos = get_position(id);
+    size_t pos = get_position(id);
     if (pos != -1){
         Employee *ptr = employees_array[pos];
         employees_array.erase(employees_array.cbegin() + pos);
@@ -165,7 +194,7 @@ void Company::Department::get_table() {
 
 void Employee::display_information () { cout << id << ": " << get_info() << endl; }
 
-const char *Employee::get_type (){ return typeid(*this).name(); }
+string Employee::get_type (){ return "Employee"; }
 
 string Employee::get_position() { return position; }
 
@@ -181,11 +210,23 @@ int Employee::get_birth_year() const { return birth_year; }
 
 string Employee::get_education() { return education; }
 
+void Employee::set_name(const string &basicString) {
+    this->name = basicString;
+}
+
+void Employee::set_birth_year(int b_y) {
+    birth_year = b_y;
+}
+
+void Employee::set_education(const string &new_education) {
+    education = new_education;
+}
+
 int Company::Department::emp_to_sup(int id) {
     Employee *emp_ptr = this->search(id);
     if (!emp_ptr) { return 1; }
     auto *new_supervisor = new Supervisor;
-    if (typeid(*emp_ptr).name() == typeid(new_supervisor).name()) { return 2; }
+    if (emp_ptr->get_type() == new_supervisor->get_type()) { return 2; }
     *new_supervisor = emp_ptr;
     new_supervisor->set_department_ptr(this);
     this->delete_employee(id);
@@ -196,6 +237,12 @@ int Company::Department::emp_to_sup(int id) {
 void Company::Department::free_department () {
     for (Employee *employee : employees_array) { delete employee; }
 }
+
+void Company::Department::set_department_name(const string &new_name) {
+    department_name = new_name;
+}
+
+Company::Department::Department() { department_name.clear(); }
 
 void Company::free_company () {
     for (Company::Department *department : departments) { department->free_department(); }
@@ -217,6 +264,12 @@ Company::Department *Company::get_department(int i) {
 
 void Company::delete_department(int i) {
     Company::Department *dep_ptr = departments[i];
-    departments.erase(departments.cbegin() + i);
+    departments.erase(departments.begin() + i);
     dep_ptr->free_department();
 }
+
+void Company::set_company_name(const string &new_name) {
+    company_name = new_name;
+}
+
+Company::Company() { company_name.clear(); }
