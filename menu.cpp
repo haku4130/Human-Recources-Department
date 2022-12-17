@@ -3,20 +3,6 @@
 
 using namespace std;
 
-int get_int(const char message[]){
-    int n;
-    cout << message;
-    while (!(cin >> n).good()) {
-        cout << "Incorrect number!\n";
-        cout << message;
-        cin.clear();
-        cin.ignore(100, '\n');
-    }
-    cin.clear();
-    cin.ignore(100, '\n');
-    return n;
-}
-
 int get_int_of_2(const char message[]){
     int n;
     cout << message;
@@ -80,7 +66,7 @@ void company_menu(Company &company){
         if (choice == 2) {
             cout << "Enter new department name: ";
             string str;
-            cin >> str;
+            getline(cin, str);
             if (company.search(str)) {
                 cout << "That department is already in company.\n";
                 continue;
@@ -144,10 +130,12 @@ void department_menu(Company::Department &department){
             int i = get_int_of_2("1. Employee.\n2. Supervisor.\nSelect: ");
             if (i == 1) {
                 auto emp = new Employee();
+                cin >> emp;
                 department.add_employee(emp);
             }
             else {
                 auto sup = new Supervisor();
+                cin >> sup;
                 sup->set_department_ptr(&department);
                 department.add_employee(sup);
             }
