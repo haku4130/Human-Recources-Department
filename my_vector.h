@@ -10,6 +10,24 @@ private:
     size_t size_{};
     size_t capacity_{};
 public:
+    class iterator{
+        private:
+            T* iterator_;
+        public:
+            iterator(T* other = nullptr){
+                iterator_ = other;
+            }
+            iterator operator =(iterator other){
+                std::swap((*this).iterator_, iter.iterator_);
+                return *this;
+            }
+            T& operator *(){
+                return *iterator_;
+            }
+            iterator& operator++(){
+                iterator_++;
+                return *this;
+        };
     my_vector() {
         arr_ = new T[1];
         capacity_ = 1;
@@ -34,29 +52,26 @@ public:
         if (size_ >= capacity_) add_memory();
         arr_[size_++] = value;
     }
-    void erase (T *position) {
-        for (auto i = position; i < cend() - 1; i++) {
-            *i = *(i + 1);
+    void erase (iterator iter) {
+        for (auto i = iter; i < cend() - 1; i++) {
+            arr_[i] = arr_[i + 1];
         }
         size_--;
     }
-    T *begin() {
-        return arr_;
+    iterator begin() {
+        return iterator(arr_);
     }
-    T *cbegin() const {
-        return arr_;
-    }
-    T *end() {
-        return &arr_[size_];
-    }
-    T *cend() const {
-        return &arr_[size_];
+    iterator end() {
+        return iterator(arr_ + size_);
     }
     T &operator [] (size_t index)  {
         return arr_[index];
     }
     const T &operator [] (size_t index) const {
         return arr_[index];
+    }
+    ~my_vector () {
+        delete [] arr_;
     }
 };
 
